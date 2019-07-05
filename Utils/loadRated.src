@@ -1,0 +1,25 @@
+&ACCESS RVO3
+&REL 29
+DEF loadRated( )
+
+; load data
+DECL LOAD loadFlange
+DECL LOAD loadA1
+DECL LOAD loadA2
+DECL LOAD loadA3
+
+; Addition load at axis 1, 2 and 3
+loadA1={M 0.0,CM {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},J {X 0.0,Y 0.0,Z 0.0}}
+loadA2={M 0.0,CM {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},J {X 0.0,Y 0.0,Z 0.0}}
+loadA3={M 0.0,CM {X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},J {X 0.0,Y 0.0,Z 0.0}}
+
+; load at flange
+loadFlange={M 3.0,CM {X 60,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0},J {X 0.01,Y 0.0,Z 0.0}}
+
+; load setting
+$LOAD_A1 = loadA1
+$LOAD_A2 = loadA2
+$LOAD_A3 = loadA3
+$LOAD    = loadFlange
+	
+END

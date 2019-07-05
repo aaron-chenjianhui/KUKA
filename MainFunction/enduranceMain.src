@@ -1,0 +1,54 @@
+&ACCESS RVP1
+&REL 155
+&PARAM DISKPATH = KRC:\R1\Program\Endurance_0411\MainFunction
+DEF enduranceMain( )
+; KUKA Endurance Application with dauer4 motion with brake test and friction measurement.
+;
+; => programCycleLimit in dauer4.dat must be set to 1
+
+   INT I
+   INT rob_start_time
+   INT ed_start_time
+   
+   EXT setVelocity(INT:in)
+   EXT setAcceleration(INT:in)
+   
+   
+   ; set motion parameters
+   setAcceleration(100)
+   
+   ; go home  
+   setVelocity(10)
+   $OV_PRO = ovTransfer
+
+
+   PTP $AXIS_ACT
+   PTP SCARA_HOME
+   
+   ; 
+   setVelocity(100)
+
+   ; Timer for friction measurements
+   $TIMER[3] = -FIRST_FRICTION_TIME
+   $TIMER_STOP[3] = FALSE
+   
+   rob_start_time = $robruntime   ; in min
+   ed_start_time = EnduranceTime  ; in hour
+   
+   LOOP      
+      ; friction measurement
+      if doFrictionMeasurement and $TIMER_FLAG[3] THEN
+         frict_main()
+         
+         ; reset timer
+         $TIMER[3] = -FRICTION_INTERVAL
+         $TIMER_STOP[3] = FALSE
+      endif
+
+      ; endurance test motion
+      EdMotion()
+      
+      ; update endurance time
+      EnduranceTime = ed_start_time + ($robruntime - rob_start_time)/60
+   EndLoop   
+END

@@ -1,0 +1,55 @@
+&ACCESS RVP
+&REL 4
+DEF repet_a3( )
+
+
+DECL INT I, I_VEL, offset, STOPTIME
+DECL STATE_T STATUS
+
+EXT LAST ( )
+  
+FOR I=1 TO  4
+   $ACC_AXIS[I]=100
+   $VEL_AXIS[I]=100
+ENDFOR
+
+$ADVANCE=3
+$FILTER=$DEF_FLT_PTP
+$BASE=$WORLD
+$TOOL={X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0}
+$APO.CPTP=25
+
+$VEL.CP=2 ;0.0-$VEL_MA.CP    [M/SEK]
+$VEL.ORI1=400.0 ;0.0-$VEL_MA.ORI1 [GRAD/SEK]
+$VEL.ORI2=400.0 ;0.0-$VEL_MA.ORI2 [GRAD/SEK]
+$ACC.CP=2.3 ;0.0-$ACC_MA.CP [M/SEK2]
+$ACC.ORI1=200.0 ;0.0-$ACC_MA.ORI1 [GRAD/SEK2]
+$ACC.ORI2=200.0 ;0.0-$ACC.MA.ORI2 [GRAD/SEK2]
+$APO.CDIS=10    
+
+LAST ( )
+
+$trace.mode = #t_stop
+wait for $trace.state == #t_end
+$TRACE.CONFIG[] = "TraceDefSCARA_A1.xml"
+
+;$OV_PRO = 100
+PTP {A1 0.0, A2 0.0, A3 0.0, A4 0.0}
+
+FOR I=1 TO  32
+   PTP {A3 0}
+   WAIT SEC 1
+
+   PTP {A3 -150}
+   WAIT SEC 4
+   PTP {A3 -160}
+   WAIT SEC 1
+   PTP {A3 -150}
+   WAIT SEC 4
+
+ENDFOR
+
+PTP {A1 0.0, A2 0.0, A3 0, A4 0.0}
+
+
+END

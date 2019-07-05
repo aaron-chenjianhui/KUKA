@@ -1,0 +1,32 @@
+&ACCESS RV
+&REL 1
+DEFDAT velSetting PUBLIC
+
+GLOBAL CONST INT numberOfOvSteps = 24
+GLOBAL CONST real ovSteps[24]
+ovSteps[1] = 1
+ovSteps[2] = 2
+ovSteps[3] = 3
+ovSteps[4] = 4
+ovSteps[5] = 5
+ovSteps[6] = 6
+ovSteps[7] = 7
+ovSteps[8] = 8
+ovSteps[9] = 9
+ovSteps[10] = 10
+ovSteps[11] = 11
+ovSteps[12] = 12
+ovSteps[13] = 13
+ovSteps[14] = 14
+ovSteps[15] = 15
+ovSteps[16] = 20
+ovSteps[17] = 30
+ovSteps[18] = 40
+ovSteps[19] = 50
+ovSteps[20] = 60
+ovSteps[21] = 70
+ovSteps[22] = 80
+ovSteps[23] = 90
+ovSteps[24] = 100
+
+ENDDAT

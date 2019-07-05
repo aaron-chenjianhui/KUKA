@@ -1,0 +1,171 @@
+&ACCESS RVP
+DEF adept_cycle( )
+INT I,N,Turn
+REAL L,H,alpha
+EXT LAST ( )
+DECL REAL Cori,p,q,L1,L2,H1,HOffset,pZP
+POS PSTOP1,PSTOP2,PZP1,PZP2,PZP3
+FOR I=1 TO  6
+   ; Acceleration
+   $ACC_AXIS[I] = 100
+   ; Velocity
+   $VEL_AXIS[I] = 100
+   ;Gear_jerk
+   $GEAR_JERK[I] = 100
+ENDFOR
+
+;$acc_axis[2]=60
+
+; AdeptCycle va
+; Reference program for small robots dimensoning user data
+; Geometric specification
+L = 290 ; Length
+H = 32  ; Height
+HOffset = 6 ; Ofset for second intermideate point to reach 25 mm
+; Position in the workspace
+alpha = 0
+; Orientation change of the impact direction
+Cori = 0
+; Distance from intermediate point 1 to the start position
+p = 0.25; Percentage (0-100) between 0 and 0,5*L (half way)
+L1 = p * L * 0.5
+; Height of the first and third intermediate point
+q = 0.5; 0...1
+H1 = q * H
+; analogous to intermediate point 3 - symmetrical
+L2 = L - L1
+
+; Calculation of the start point depending the kinematic sizes
+; Shifting of the center point PZP outward (0 < PZP < 1) or inward (-1 < PZP < 0)
+pZP = 0.4
+PZP2.X = (1 + pZP) * ( 0.5 * ($TX3P3.X + $LENGTH_B) + $LENGTH_A)  ;#
+;PZP2.X = 252.5
+PZP2.Y = 0;y 150;0
+;PZP2.Y = 250.0
+PZP2.Z = $TIRORO.Z - $TFLWP.Z + H
+PZP2.Z = 0;-15
+; Orientation is remaing the same - Difficult to program because A6 should not move
+PZP2.A = 0
+PZP2.B = 0
+PZP2.C = -90
+
+; Starting point
+PSTOP1 = PZP2
+PSTOP1.X = PZP2.X - 0.5 * L * cos(alpha)
+PSTOP1.Y = PZP2.Y - 0.5 * L * sin(alpha)
+PSTOP1.Z = PZP2.Z - H
+
+; End point
+PSTOP2 = PZP2
+PSTOP2.X = PZP2.X + 0.5 * L * cos(alpha)
+PSTOP2.Y = PZP2.Y + 0.5 * L * sin(alpha)
+PSTOP2.Z = PZP2.Z - H
+
+; Intermediate point 1
+PZP1 = PZP2
+PZP1.X = PSTOP1.X + L1 * cos(alpha)
+PZP1.Y = PSTOP1.Y + L1 * sin(alpha)
+PZP1.Z = PSTOP1.Z + H1
+
+; Intermediate point 3
+PZP3 = PZP2
+PZP3.X = PSTOP1.X + L2 * cos(alpha)
+PZP3.Y = PSTOP1.Y + L2 * sin(alpha)
+PZP3.Z = PSTOP1.Z + H1
+
+N = 0;
+
+; Setting the advance pointer
+$ADVANCE = 3
+
+; Setting filter length
+$FILTER = 60
+
+; Setting base system
+$BASE = $WORLD
+
+; Setting tool coordinate system
+$TOOL = {X 0,Y 0,Z 0,A 0.0,B 0.0,C 0.0}
+
+;Path velocity
+$VEL.CP=2 ;0.0-$VEL_MA.CP    [M/SEK]
+$VEL.ORI1=400.0 ;0.0-$VEL_MA.ORI1 [GRAD/SEK]
+$VEL.ORI2=400.0 ;0.0-$VEL_MA.ORI2 [GRAD/SEK]
+
+;Path acceleration
+$ACC.CP=2.3 ;0.0-$ACC_MA.CP [M/SEK2]
+$ACC.ORI1=200.0 ;0.0-$ACC_MA.ORI1 [GRAD/SEK2]
+$ACC.ORI2=200.0 ;0.0-$ACC.MA.ORI2 [GRAD/SEK2]
+
+LAST()
+
+$CIRC_TYPE      = #BASE
+$APO.CDIS       = 10    ; CP - Continues movement radius in [mm]
+$trace.mode = #t_stop
+wait for $trace.state == #t_end
+$TRACE.CONFIG[] = "TraceDefSCARA_A1.xml" 
+$trace.name[] = "adept45"
+wait sec 0
+$trace.mode = #t_start
+
+$OV_PRO = 90
+PTP $axis_act
+PTP{A1 0,A2 0,A3 0,A4 0}
+
+$TIMER_STOP[1] = TRUE
+$TIMER[1] = 0
+
+; Starting point P1
+PTP PSTOP1
+halt
+
+$TIMER_STOP[1] = FALSE
+
+;Loop
+Loop
+
+$APO.CPTP = 100 ; Start of PTP continues movement in [%]
+
+PTP PSTOP1 c_ptp
+PTP PZP1 c_ptp
+PTP PZP2 c_ptp
+PTP PZP3 c_ptp
+
+$APO.CPTP = 0 ; Start of PTP continues movement in [%]
+
+PTP PSTOP2 c_ptp
+
+$APO.CPTP=100 ; Start of PTP continues movement in [%]
+
+PTP PZP3 c_ptp
+PTP PZP2 c_ptp
+PTP PZP1 c_ptp
+
+$APO.CPTP=0 ; Start of PTP continues movement in [%]
+
+PTP PSTOP1 c_ptp
+
+N = N + 1;
+
+IF N == 10 THEN
+   ;wait sec 7
+   ;N=0
+   exit
+ENDIF
+ENDLOOP
+
+;ENDLOOP
+
+$TIMER_STOP[1] = TRUE
+$TIMER[2] = $TIMER[1] / 100
+
+wait sec 0
+$trace.mode = #t_stop
+wait for $trace.state == #t_end
+halt
+
+;ct_off()
+
+;PTP{A1 0,A2 0,A3 -100b,A4 0}
+
+END

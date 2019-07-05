@@ -1,0 +1,11 @@
+&ACCESS RV
+&REL 2
+DEFDAT axSetting PUBLIC
+
+GLOBAL CONST BOOL AxIdntFlag[4]
+AxIdntFlag[1] = TRUE
+AxIdntFlag[2] = TRUE
+AxIdntFlag[3] = TRUE
+AxIdntFlag[4] = FALSE
+
+ENDDAT 

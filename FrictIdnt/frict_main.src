@@ -1,0 +1,67 @@
+&ACCESS RVP1
+DEF frict_main()
+
+INT runtime, nHandle
+DECL STATE_T SWSTATE
+DECL KrlMsg_T msg
+DECL KrlMsgPar_T par[3]
+DECL KrlMsgOpt_T opt
+DECL BOOL RESULT
+REAL overrideProg
+
+EXT INITMOV()
+EXT setVelocity(INT:in)
+EXT setAcceleration(INT:in)
+
+; storring initial override
+overrideProg = $ov_pro
+
+initmov()
+
+setVelocity(10)
+PTP $axis_act
+PTP SCARA_HOME
+
+setVelocity(100)
+
+
+; runtime = $robruntime
+runtime = EnduranceTime
+
+msg = {modul[] "-", nr 1, msg_txt[] "Performing friction measurement!"}
+opt = {vl_stop true, clear_p_reset true, clear_p_SAW false, log_to_DB false}
+nHandle = Set_KrlMsg (#notify, msg, par[], opt)
+
+
+IF AxIdntFlag[1]==TRUE THEN
+   $ov_pro = 20
+   PTP SCARA_HOME
+   Wait SEC 0.5
+   frict_a1(runtime)
+ENDIF
+
+IF AxIdntFlag[2]==TRUE THEN
+   $ov_pro = 20
+   PTP SCARA_HOME
+   Wait SEC 0.5
+   frict_a2(runtime)
+ENDIF
+
+IF AxIdntFlag[3]==TRUE THEN
+   $ov_pro = 20
+   PTP SCARA_HOME
+   Wait SEC 0.5
+   frict_a3(runtime)
+ENDIF
+
+IF AxIdntFlag[4]==TRUE THEN
+   $ov_pro = 20
+   PTP SCARA_HOME
+   Wait SEC 0.5
+   frict_a4(runtime)
+ENDIF
+
+; setting program override back to initial value
+$ov_pro = overrideProg
+
+END

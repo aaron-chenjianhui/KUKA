@@ -1,0 +1,92 @@
+&ACCESS RVO2
+&REL 132
+DEF frict_a3(runtime:in)
+
+INT runtime
+INT iterator_vel, I
+INT name
+
+BOOL DOTRACE, RESULT
+CHAR configtrace[50],nametrace[50]
+
+AXIS StartAxis, TargetAxis
+DECL KrlMsg_T msg
+DECL KrlMsgPar_T par[3]
+DECL KrlMsgOpt_T opt
+DECL STATE_T SWSTATE
+INT SWOFFSET
+
+EXT tracestart(char[]:in,char[]:in)
+EXT tracestop()
+EXT INITMOV()
+EXT setVelocity(INT:in)
+EXT setAcceleration(INT:in)
+
+;---- Einstellungen ----;
+DOTRACE=TRUE
+INITMOV()
+
+setVelocity(100)
+setAcceleration(100)
+
+
+StartAxis = SCARA_HOME
+TargetAxis = SCARA_HOME
+
+StartAxis.A3 = a3_start[1]
+
+if $trace.state <> #t_end then
+  $trace.mode = #t_stop
+  wait for $trace.state==#t_end
+endif 
+
+configtrace[]="TraceDefSCARA_A3.xml"
+nametrace[]="0 "
+SWOFFSET=0
+
+
+$OV_PRO = ovTransfer
+ptp startaxis
+Wait SEC 0.5
+
+$OV_PRO = 100
+
+
+;---- Geschwindigkeitsgridding ----;
+FOR I=1 TO numberOfOvSteps
+   $VEL_AXIS[3] = ovSteps[I]
+   name = ovSteps[I]
+   
+   StartAxis.A3 = a3_start[I]
+   TargetAxis.A3 = a3_end[I]
+   
+   PTP StartAxis
+   WAIT SEC 0.5
+      
+   IF DOTRACE THEN
+     ;Tracename definieren
+     SWOFFSET=0
+     nametrace[]="0 "
+     RESULT=StrClear(nametrace[])
+     wait sec 0.1
+     
+     SWRITE(nametrace[],SWSTATE,SWOFFSET,"A3Frict_%06d_%03d", EnduranceTime, name)
+
+     tracestart(configtrace[],nametrace[])
+     wait sec 0.5 
+   ENDIF
+   
+   
+   PTP TargetAxis   
+   wait sec 0.5
+   PTP StartAxis
+   wait sec 0.5
+   
+   IF DOTRACE THEN
+     tracestop()
+     wait sec 1.5 
+   ENDIF
+     
+ENDFOR
+
+END

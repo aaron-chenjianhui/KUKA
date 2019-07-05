@@ -1,0 +1,317 @@
+&ACCESS RVO1
+&REL 365
+&PARAM DISKPATH = KRC:\R1\Program\Endurance_0411\Motion
+DEF EdMotion( )
+; KUKA Endurance Application for robots with 6 axes.
+;
+; yyyy-mm-dd Author  : Comment     
+; ------------------------------------------------
+; 2018-08-07 Bui-Ngoc: created
+; 2018-08-21 Bui-Ngoc: Reviewed by T. Klaiber
+; 2018-08-29 Bui-Ngoc: Added KRL message with cycleCounter, cycleTime and $robRuntime
+; 2018-09-07 Bui-Ngoc: Added pauseTime; change the axes velocity instead of the override
+
+   INT I
+   INT msgHandle
+   
+   BOOL clearMsgResult
+      
+   AXIS SingleAx[11]
+   AXIS MultiAx[5]
+   POS PickR[8]
+   POS PickL[8] 
+     
+   INT SWOFFSET
+   BOOL RESULT
+   DECL STATE_T SWSTATE
+   DECL char msgText[80]
+   
+   EXT INITMOV()
+   EXT setVelocity(INT:in)
+   EXT setAcceleration(INT:in)
+   EXT traceStart(CHAR[]:in,CHAR[]:in)
+   EXT traceStop()
+   
+   
+   INITMOV()
+   
+   setAcceleration(100)
+      
+   $Trace.Mode = #T_Stop
+   
+                                                  
+   SingleAx[ 1] = jointPos( 110,  0  ,  0  ,  0  )
+   SingleAx[ 2] = jointPos(-110,  0  ,  0  ,  0  )
+   SingleAx[ 3] = jointPos( 0  ,  0  ,  0  ,  0  )
+   SingleAx[ 4] = jointPos( 0  ,  100,  0  ,  0  )
+   SingleAx[ 5] = jointPos( 0  , -100,  0  ,  0  )
+   SingleAx[ 6] = jointPos( 0  ,  0  ,  0  ,  0  )
+   SingleAx[ 7] = jointPos( 0  ,  0  , -180,  0  )
+   SingleAx[ 8] = jointPos( 0  ,  0  ,  0  ,  0  )
+   SingleAx[ 9] = jointPos( 0  ,  0  ,  0  ,  270)
+   SingleAx[10] = jointPos( 0  ,  0  ,  0  , -270)
+   SingleAx[11] = jointPos( 0  ,  0  ,  0  ,  0  )
+   
+   MultiAx[ 1]  = jointPos( 100,  100,  0  ,  270)
+   MultiAx[ 2]  = jointPos(-100, -100,  0  , -270)
+   MultiAx[ 3]  = jointPos( 0  ,  0  ,  0  ,  0  )
+   MultiAx[ 4]  = jointPos( 0  ,  0  , -180,  0  )
+   MultiAx[ 5]  = jointPos( 0  ,  0  ,  0  ,  0  )
+   
+   
+   ; TODO(CJH): check the cartesian postion value
+;   PickL[ 1] = cartesianPos( 400, -200,  120,  0  , "L") ; Y
+;   PickL[ 2] = cartesianPos( 400,  -50,  165,  0  , "L") ; Y
+;   PickL[ 3] = cartesianPos( 400,  100,  120,  0  , "L") ; Y
+;   PickL[ 4] = cartesianPos( 500,  0  ,  196,  0  , "L") ; home
+;   PickL[ 5] = cartesianPos( 190,  0  ,  120,  0  , "L") ; X
+;   PickL[ 6] = cartesianPos( 340,  0  ,  165,  0  , "L") ; X
+;   PickL[ 7] = cartesianPos( 490,  0  ,  120,  0  , "L") ; X
+;   PickL[ 8] = cartesianPos( 500,  0  ,  196,  0  , "L") ; home
+   
+;   PickR[ 1] = cartesianPos( 400, -200,  120,  0  , "R") ; Y
+;   PickR[ 2] = cartesianPos( 400,  -50,  165,  0  , "R") ; Y
+;   PickR[ 3] = cartesianPos( 400,  100,  120,  0  , "R") ; Y
+;   PickR[ 4] = cartesianPos( 500,  0  ,  196,  0  , "R") ; home
+;   PickR[ 5] = cartesianPos( 165,  0  ,  120,  0  , "R") ; X
+;   PickR[ 6] = cartesianPos( 315,  0  ,  165,  0  , "R") ; X
+;   PickR[ 7] = cartesianPos( 465,  0  ,  120,  0  , "R") ; X
+;   PickR[ 8] = cartesianPos( 500,  0  ,  196,  0  , "R") ; home
+  
+   PickL[ 1] = cartesianPos( 400, -200,  -76,  0  , "L") ; Y
+   PickL[ 2] = cartesianPos( 400,  -50,  -31,  0  , "L") ; Y
+   PickL[ 3] = cartesianPos( 400,  100,  -76,  0  , "L") ; Y
+   PickL[ 4] = cartesianPos( 500,  0  ,  0  ,  0  , "L") ; home
+   PickL[ 5] = cartesianPos( 190,  0  ,  -76,  0  , "L") ; X
+   PickL[ 6] = cartesianPos( 340,  0  ,  -31,  0  , "L") ; X
+   PickL[ 7] = cartesianPos( 490,  0  ,  -76,  0  , "L") ; X
+   PickL[ 8] = cartesianPos( 500,  0  ,  0  ,  0  , "L") ; home
+   
+   PickR[ 1] = cartesianPos( 400, -200,  -76,  0  , "R") ; Y
+   PickR[ 2] = cartesianPos( 400,  -50,  -31,  0  , "R") ; Y
+   PickR[ 3] = cartesianPos( 400,  100,  -76,  0  , "R") ; Y
+   PickR[ 4] = cartesianPos( 500,  0  ,  0  ,  0  , "R") ; home
+   PickR[ 5] = cartesianPos( 165,  0  ,  -76,  0  , "R") ; X
+   PickR[ 6] = cartesianPos( 315,  0  ,  -31,  0  , "R") ; X
+   PickR[ 7] = cartesianPos( 465,  0  ,  -76,  0  , "R") ; X
+   PickR[ 8] = cartesianPos( 500,  0  ,  0  ,  0  , "R") ; home
+   
+                                                         
+   clearMsgResult = Clear_KrlMsg(-99)
+
+   setVelocity(10)
+   $OV_PRO = ovTransfer
+
+   PTP $AXIS_ACT
+   PTP SCARA_HOME
+   
+   setVelocity(100)
+   $OV_PRO = ovMotion
+
+   programCycleCounter = 0;
+
+   $timer_stop[1]=FALSE
+   cycleTime = 0;
+   
+   SWOFFSET = 0
+   RESULT=StrClear(msgText[])
+   SWRITE(msgText[], SWSTATE,SWOFFSET, "START: SNR: %d;  cycleCounter= %d;  $robRuntime= %d min", $KR_SERIALNO, cycleCounter, $robRuntime)
+   msgHandle = printMsg(#NOTIFY, msgText[], TRUE)  
+   
+   REPEAT
+      $timer[1]=0
+
+      if doTrace then
+         traceStart(TraceConfig[], TraceName[])
+           ;wait for $trace.state == #t_end
+           ;$TRACE.CONFIG[] = "TraceDefSCARA_A4.xml"
+           ;$trace.name[] = "Test1_A4_PPIopt_"
+           ;$trace.mode = #t_start
+      endif
+      
+      ; SingleAx
+      if doSingleAx THEN
+         PTP SingleAx[1]
+         PTP SingleAx[2]
+         PTP SingleAx[3]
+         PTP SingleAx[4]
+         PTP SingleAx[5]
+         PTP SingleAx[6]
+         PTP SingleAx[7]
+         PTP SingleAx[8]
+         PTP SingleAx[9]
+         PTP SingleAx[10]
+         PTP SingleAx[11]
+      endif
+      
+      ; MultiAx
+      if doMultiAx THEN
+         PTP MultiAx[1]
+         PTP MultiAx[2]
+         PTP MultiAx[3]
+         PTP MultiAx[4]
+         PTP MultiAx[5]
+      ENDIF
+      
+      if doPickL THEN      
+         FOR I = 1 TO PickLoop
+             ; Pick & Place      
+            PTP PickL[1]
+            PTP PickL[2] C_PTP
+            PTP PickL[3]
+            PTP PickL[2] C_PTP
+            PTP PickL[1]
+         EndFOR
+         
+            PTP PickL[4]
+         
+         FOR I = 1 TO PickLoop
+            PTP PickL[5]
+            PTP PickL[6] C_PTP
+            PTP PickL[7]
+            PTP PickL[6] C_PTP
+            PTP PickL[5]
+         ENDFOR
+         
+            PTP PickL[8]         
+         
+      endif
+      
+      ; Pick & Place
+      if doPickR THEN
+         FOR I = 1 TO PickLoop
+             ; Pick & Place      
+            PTP PickR[1]
+            PTP PickR[2] C_PTP
+            PTP PickR[3]
+            PTP PickR[2] C_PTP
+            PTP PickR[1]
+         EndFOR
+         
+            PTP PickR[4]
+         
+         FOR I = 1 TO PickLoop
+            PTP PickR[5]
+            PTP PickR[6] C_PTP
+            PTP PickR[7]
+            PTP PickR[6] C_PTP
+            PTP PickR[5]
+         ENDFOR
+         
+            PTP PickR[8]         
+      endif
+      
+         
+
+      ;HOME
+      if doHome then
+         PTP SCARA_HOME
+      endif
+      
+        
+      if doTrace then
+         traceStop()
+      endif
+           
+      cycleTime = $timer[1];
+      cycleCounter = cycleCounter + 1
+      programCycleCounter = programCycleCounter + 1;
+      
+      clearMsgResult = Clear_KrlMsg(msgHandle)
+      
+      SWOFFSET = 0
+      RESULT=StrClear(msgText[])
+      SWRITE(msgText[],SWSTATE,SWOFFSET, "cycleCounter= %d;  cycleTime= %d ms;  $robRuntime= %d min", cycleCounter, cycleTime, $robRuntime)
+      msgHandle = printMsg(#STATE, msgText[], FALSE) 
+      
+
+      wait sec pauseTime
+   UNTIL (programCycleLimit > 0) AND (programCycleCounter >= programCycleLimit) 
+   
+   
+   SWOFFSET = 0
+   RESULT=StrClear(msgText[])
+   SWRITE(msgText[], SWSTATE,SWOFFSET, "END: SNR: %d;  cycleCounter= %d;  $robRuntime= %d min", $KR_SERIALNO, cycleCounter, $robRuntime)
+   msgHandle = printMsg(#NOTIFY, msgText[], TRUE)  
+END
+
+DEFFCT REAL limit(min : in, value : in, max : in)
+   REAL min, value, max
+   
+   if (value < min) THEN
+     return min
+   endif
+
+   if (value > max) THEN
+     return max;
+   endif
+  
+   return value
+ENDFCT
+
+DEFFCT AXIS jointPos(a1 : in, a2 : in, a3 : in, a4 : in)
+   REAL a1, a2, a3, a4
+   AXIS ax
+   
+   ax.A1 = limit($SOFTN_END[1] + angleToSoftEnd, a1, $SOFTP_END[1] - angleToSoftEnd)
+   ax.A2 = limit($SOFTN_END[2] + angleToSoftEnd, a2, $SOFTP_END[2] - angleToSoftEnd)
+   ax.A3 = limit($SOFTN_END[3] + angleToSoftEnd, a3, $SOFTP_END[3] - angleToSoftEnd)
+   ax.A4 = limit($SOFTN_END[4] + angleToSoftEnd, a4, $SOFTP_END[4] - angleToSoftEnd)
+   
+   ax.A1 = limit(minA1, ax.A1, +maxA1) 
+   ax.A2 = limit(minA2, ax.A2, +maxA2) 
+   ax.A3 = limit(minA3, ax.A3, +maxA3) 
+   ax.A4 = limit(minA4, ax.A4, +maxA4) 
+   
+   RETURN ax
+ENDFCT
+
+DEFFCT POS cartesianPos(x : in, y : in, z : in, theta : in, arm : in)
+   REAL x, y, z, theta
+   POS p
+   CHAR arm
+   
+   p.X = x;
+   p.Y = y;
+   p.Z = Z;
+   p.A = 0;
+   p.B = 90;
+   p.C = theta;
+   
+   ; TODO(CJH): check the s & t value
+   ; IF arm == "R" THEN
+   ; p.s = 2
+   ; p.t = 9
+   ; ELSE   ; left arm orientation
+   ; p.s = 2
+   ; p.t = 1
+   ; ENDIF   
+   
+   RETURN p
+ENDFCT
+
+DEFFCT int printMsg(msgType:in, msg[]:in, logToDatabase:in)
+   DECL EKrlMsgType msgType
+   char msg[]
+   bool logToDatabase
+   
+   DECL KrlMsg_t mymessage 
+   DECL KrlMsgPar_t mypar[3] 
+   DECL KrlMsgOpt_t myoption 
+   DECL int handle, len, count   
+   
+   mymessage.MODUL[] = "EnduranceMotion"
+   mymessage.NR = 1
+   
+   myoption.VL_STOP = FALSE
+   myoption.Clear_P_Reset = FALSE
+   myoption.Clear_P_SAW = TRUE
+   myoption.Log_to_DB = logToDatabase
+   
+   len=STRLEN(msg[])
+   FOR count=1 TO len
+      mymessage.Msg_txt[count]=msg[count]
+   ENDFOR   
+    
+   return Set_KrlMsg (msgType, mymessage, mypar[], myoption)
+ENDFCT

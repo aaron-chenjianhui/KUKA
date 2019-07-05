@@ -1,0 +1,19 @@
+&ACCESS RVP1
+&REL 155
+&PARAM DISKPATH = KRC:\R1\Program\Endurance_0411\MainFunction
+DEFDAT  ENDURANCEMAIN PUBLIC
+
+INT FIRST_FRICTION_TIME=100000 ; in milliseconds (86400000 = 24 hour) 
+INT FRICTION_INTERVAL=86400000 ; in milliseconds (= 24 hours) measurement interval
+
+BOOL doFrictionMeasurement=TRUE
+
+DECL GLOBAL AXIS SCARA_HOME={A1 0.0,A2 0.0,A3 0.0,A4 0.0}
+GLOBAL CONST INT ovTransfer=30
+
+DECL GLOBAL INT EnduranceTime=0; in hours
+
+; TODO(CJH): a variable to record endurance time
+
+
+ENDDAT

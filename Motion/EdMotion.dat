@@ -1,0 +1,54 @@
+&ACCESS RVO1
+&REL 365
+&PARAM DISKPATH = KRC:\R1\Program\Endurance_0411\Motion
+DEFDAT  EDMOTION PUBLIC
+
+DECL GLOBAL INT cycleCounter=300642 ; = LAUFZ -> total cycle counter for the robot. Program does not reset this value at the beginning
+INT cycleTime ; cycle time in milliseconds from the last executed cycle
+INT programCycleCounter ; Program reset this value at the beginning
+INT programCycleLimit=1 ; -1 or 0 = no limit; default value: -1
+
+GLOBAL CONST INT ovMotion=100
+
+INT pauseTime=0 ; pause time in seconds after each cycle; default value: 0   
+
+; Trace settings
+BOOL doTrace=TRUE ; default value: TRUE
+
+
+; TODO(CJH): check trace name
+CHAR TraceConfig[50]
+TraceConfig[]="Tracedef.xml" ; default value: "Tracedef.xml"
+
+CHAR TraceName[50]
+TraceName[]="EnduranceMotion" ; default value: "dauer4"
+
+
+; endurance motion
+BOOL doSingleAx=TRUE
+BOOL doMultiAx=TRUE
+BOOL doPickR=FALSE
+BOOL doPickL=TRUE
+BOOL doHome=TRUE
+
+INT PickLoop=5
+
+; axis angles
+REAL angleToSoftEnd=5.00000 ; in degrees; for all axes; default value: 5.0
+
+; additional axis limits
+REAL minA1=-999.000 ; in degrees; minimum angle for A1; default value: -999
+REAL maxA1=999.000 ; in degrees; maximum angle for A1; default value:  999
+
+REAL minA2=-999.000 ; in degrees; minimum angle for A2; default value: -999
+REAL maxA2=999.000 ; in degrees; maximum angle for A2; default value:  999
+
+REAL minA3=-999.000 ; in degrees; minimum angle for A3; default value: -999
+REAL maxA3=999.000 ; in degrees; maximum angle for A3; default value:  999
+
+REAL minA4=-999.000 ; in degrees; minimum angle for A4; default value: -999
+REAL maxA4=999.000 ; in degrees; maximum angle for A4; default value:  999
+
+
+
+ENDDAT

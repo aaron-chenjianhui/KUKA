@@ -1,0 +1,59 @@
+&ACCESS RVP
+&REL 4
+DEF max_speed_a1( )
+
+
+DECL INT I, I_VEL, offset
+DECL STATE_T STATUS
+
+EXT LOAD_ENDURANCE ( )
+  
+FOR I=1 TO  4
+   $ACC_AXIS[I]=100
+   $VEL_AXIS[I]=100
+ENDFOR
+
+$ADVANCE=3
+$FILTER=$DEF_FLT_PTP
+$BASE=$WORLD
+$TOOL={X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0}
+$APO.CPTP=25
+
+$VEL.CP=2 ;0.0-$VEL_MA.CP    [M/SEK]
+$VEL.ORI1=400.0 ;0.0-$VEL_MA.ORI1 [GRAD/SEK]
+$VEL.ORI2=400.0 ;0.0-$VEL_MA.ORI2 [GRAD/SEK]
+$ACC.CP=2.3 ;0.0-$ACC_MA.CP [M/SEK2]
+$ACC.ORI1=200.0 ;0.0-$ACC_MA.ORI1 [GRAD/SEK2]
+$ACC.ORI2=200.0 ;0.0-$ACC.MA.ORI2 [GRAD/SEK2]
+$APO.CDIS=10    
+
+LOAD_ENDURANCE ( )
+
+$trace.mode = #t_stop
+$TRACE.CONFIG[] = "TraceDefSCARA_A1.xml"
+$trace.name[] = "MaxSpeedTest_A1"
+
+PTP $pos_act
+
+$ov_pro = 5
+PTP {A1 -120.0,A2 0.0}
+
+$ov_pro = 100
+wait sec 0.5
+$trace.mode = #t_start
+wait sec 0.5
+
+PTP {A1 120}
+wait sec 1
+PTP {A1 -120}
+wait sec 1
+
+$trace.mode = #t_stop
+wait for $trace.state == #t_end
+WAIT SEC 0.5
+
+$ov_pro = 5
+PTP {A1 0.0,A2 0.0,A3 0,A4 0}
+WAIT SEC 0.5
+
+END

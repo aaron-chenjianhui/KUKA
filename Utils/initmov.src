@@ -1,0 +1,65 @@
+&ACCESS RVO3
+&REL 1
+DEF  INITMOV ()
+;********************************
+; Function: Setting of all
+;           Motion-Parameters
+;********************************
+INT I
+
+$BASE={X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0}
+$TOOL={X 0.0,Y 0.0,Z 0.0,A 0.0,B 0.0,C 0.0}
+
+$FILTER=$DEF_FLT_PTP
+$EXTSTARTTYP=TRUE
+
+; PTP-Parameters:
+FOR I=1 TO 6
+;ACHSGESCHWINDIGKEIT
+$VEL_EXTAX[I]=100 ;0-100 [%]
+$VEL_AXIS[I]=100 ;0-100 [%]
+;ACHSBESCHLEUNIGUNG
+$ACC_EXTAX[I]=100 ;1-100 [%]
+$ACC_AXIS[I]=100 ;1-100 [%]
+;ACHSRUCK
+$GEAR_JERK[I]=100 ;1-100 [%]
+$GEAR_JERK[I+6]=100 ;1-100 [%]
+ENDFOR
+
+; Spine Struct:
+$JERK.CP=500.0
+$JERK.ORI=50000.0
+$JERK.AX.A1=1000.0
+$JERK.AX.A2=1000.0
+$JERK.AX.A3=1000.0
+$JERK.AX.A4=1000.0
+$JERK.AX.E1=1000.0
+$JERK.AX.E2=1000.0
+$JERK.AX.E3=1000.0
+$JERK.AX.E4=1000.0
+
+; CP-Parameters:
+$ACC.CP=2.3
+$ACC.ORI1=100.0
+$ACC.ORI2=100.0
+$VEL.CP=1.0
+$VEL.ORI1=200.0
+$VEL.ORI2=200.0
+
+; Parameters for Approximation:
+$APO.CPTP=50.0
+$APO.CDIS=3.0
+$APO.CVEL=100.0
+$APO.CORI=5.0
+
+$ADVANCE=3
+$ORI_TYPE=#VAR
+$CIRC_TYPE=#BASE
+
+;Ueberlastueberwachung ausschalten
+$LDC_ACTIVE = FALSE
+
+; setting load
+loadRated()
+
+END

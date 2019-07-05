@@ -1,0 +1,13 @@
+&ACCESS RV4
+&REL 1
+&PARAM EDITMASK = *
+DEF setVelocity (relativeVelocity : in)
+
+   INT relativeVelocity
+   INT i
+
+   FOR i=1 TO  6   
+      $VEL_AXIS[i]=relativeVelocity 
+   ENDFOR
+   
+END

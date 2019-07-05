@@ -1,0 +1,12 @@
+&ACCESS RV3
+&PARAM EDITMASK = *
+DEF setAcceleration(relativeAcceleration:IN)
+
+   INT relativeAcceleration
+   INT i
+   
+   FOR i=1 TO  6   
+      $ACC_AXIS[i]=relativeAcceleration
+   ENDFOR
+   
+END
